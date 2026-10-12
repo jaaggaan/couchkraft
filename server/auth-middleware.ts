@@ -145,13 +145,25 @@ function parseCartItems(body: Body) {
   })
 }
 
+function requestApiPath(req: IncomingMessage & { query?: Record<string, unknown> }) {
+  const forwarded = req.headers['x-forwarded-uri']
+  if (typeof forwarded === 'string' && forwarded.includes('/api/')) {
+    return forwarded.split('?')[0]
+  }
+  const fromQuery = req.query?.__ck
+  if (typeof fromQuery === 'string' && fromQuery.startsWith('/api')) return fromQuery.split('?')[0]
+  const search = req.url?.includes('?') ? new URL(req.url, 'http://localhost').searchParams.get('__ck') : null
+  if (search?.startsWith('/api')) return search.split('?')[0]
+  return req.url?.split('?')[0] ?? ''
+}
+
 export async function handleCouchkraftApi(
   req: IncomingMessage,
   res: ServerResponse,
   runtimeEnv: Record<string, string | undefined> = process.env,
 ): Promise<boolean> {
-  const raw = req.url?.split('?')[0] ?? ''
-  const url = raw.startsWith('/api/') ? raw : `/api${raw.startsWith('/') ? raw : `/${raw}`}`
+  const raw = requestApiPath(req)
+  const url = raw.startsWith('/api/') || raw === '/api' ? raw : `/api${raw.startsWith('/') ? raw : `/${raw}`}`
   if (
     !url.startsWith('/api/auth') &&
     !url.startsWith('/api/orders') &&
