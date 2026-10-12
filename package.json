@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b tsconfig.app.json tsconfig.node.json && vite build",
+    "build": "tsc -b tsconfig.app.json tsconfig.node.json && vite build && npm run bundle:api",
+    "bundle:api": "npx esbuild server/vercel-handler.ts --bundle --platform=node --format=esm --outfile=api/index.js",
     "lint": "oxlint",
     "preview": "vite preview"
   },

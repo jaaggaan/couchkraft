@@ -1,5 +1,5 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
-import { handleCouchkraftApi } from '../server/auth-middleware.ts'
+import { handleCouchkraftApi } from './auth-middleware.ts'
 
 export default async function handler(req: IncomingMessage, res: ServerResponse) {
   const handled = await handleCouchkraftApi(req, res)
